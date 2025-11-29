@@ -1,0 +1,17 @@
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+*.md
+*.bat
+data/images/*
+data/logs/*
+data/app.db
+certs/*
+test_*.py
+.vscode
+.idea
+

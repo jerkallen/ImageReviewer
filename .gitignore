@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# 虚拟环境
+venv/
+env/
+ENV/
+
+# 数据文件
+data/app.db
+data/images/*
+!data/images/.gitkeep
+data/logs/*.log
+
+# SSL证书
+certs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 测试
+test_temp.db
+test_images/
+
+# 临时文件
+*.tmp
+*.bak
+

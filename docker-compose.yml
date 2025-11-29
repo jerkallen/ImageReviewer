@@ -1,0 +1,23 @@
+version: '3'
+
+services:  # 定义服务列表
+  image-reviewer:  # 服务名称
+    container_name: image_reviewer  # 容器名称
+    image: image_reviewer:latest  # 使用的镜像名称和标签
+    build: .  # 指定Dockerfile所在目录，用于构建镜像
+    ports:  # 端口映射配置
+      - "8501:8501"  # HTTPS/HTTP端口映射
+    volumes:  # 数据卷配置
+      - ./certs:/app/certs  # 挂载证书目录以保留生成的证书
+      - ./data:/data  # 挂载data目录到容器的/data目录
+    environment:  # 环境变量配置
+      - TZ=Asia/Shanghai  # 设置时区为上海
+      - ROOT_DIRECTORY=/data  # 设置应用程序的根目录
+    restart: always  # 容器退出时总是自动重启
+    networks:  # 指定容器连接的网络
+      - image-reviewer-network  # 使用名为image-reviewer-network的网络
+
+networks:  # 定义网络配置
+  image-reviewer-network:  # 网络名称
+    driver: bridge  # 使用bridge驱动，这是Docker的默认网络驱动
+

@@ -1,0 +1,519 @@
+// 主页面JavaScript逻辑
+
+// 全局状态
+const state = {
+    currentFolder: null,
+    currentIndex: 0,
+    totalImages: 0,
+    imageList: [],
+    rotate: false,
+    showBbox: true,
+    preloadedImage: null,  // 预加载的图片缓存
+    preloadedIndex: -1,    // 预加载的图片索引
+    loading: false
+};
+
+// DOM元素
+const elements = {
+    folderSelect: document.getElementById('folder-select'),
+    mainImage: document.getElementById('main-image'),
+    imageName: document.getElementById('image-name'),
+    loading: document.getElementById('loading'),
+    noImage: document.getElementById('no-image'),
+    totalCount: document.getElementById('total-count'),
+    currentIndex: document.getElementById('current-index'),
+    modifyTime: document.getElementById('modify-time'),
+    imageSize: document.getElementById('image-size'),
+    progressBar: document.getElementById('progress-bar'),
+    rotateToggle: document.getElementById('rotate-toggle'),
+    bboxToggle: document.getElementById('bbox-toggle'),
+    userIp: document.getElementById('user-ip'),
+    btnFirst: document.getElementById('btn-first'),
+    btnPrev: document.getElementById('btn-prev'),
+    btnOk: document.getElementById('btn-ok'),
+    btnNok: document.getElementById('btn-nok'),
+    btnNext: document.getElementById('btn-next'),
+    btnLast: document.getElementById('btn-last'),
+    btnUndo: document.getElementById('btn-undo'),
+    undoCount: document.getElementById('undo-count'),
+    notification: document.getElementById('notification')
+};
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+    setupEventListeners();
+    setupKeyboardShortcuts();
+});
+
+// 初始化应用
+async function initializeApp() {
+    await loadUser();
+    await loadFolders();
+    await loadGlobalState();
+    checkUndoAvailable();
+}
+
+// 设置事件监听
+function setupEventListeners() {
+    elements.folderSelect.addEventListener('change', onFolderChange);
+    elements.rotateToggle.addEventListener('change', onRotateToggle);
+    elements.bboxToggle.addEventListener('change', onBboxToggle);
+    elements.btnFirst.addEventListener('click', () => navigate('first'));
+    elements.btnPrev.addEventListener('click', () => navigate('prev'));
+    elements.btnOk.addEventListener('click', () => classifyImage('ok'));
+    elements.btnNok.addEventListener('click', () => classifyImage('nok'));
+    elements.btnNext.addEventListener('click', () => navigate('next'));
+    elements.btnLast.addEventListener('click', () => navigate('last'));
+    elements.btnUndo.addEventListener('click', undoLastOperation);
+}
+
+// 设置键盘快捷键
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // 如果焦点在输入框，不处理快捷键
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            return;
+        }
+
+        switch(e.key.toLowerCase()) {
+            case 'arrowleft':
+            case 'a':
+                navigate('prev');
+                e.preventDefault();
+                break;
+            case 'arrowright':
+            case 'd':
+                navigate('next');
+                e.preventDefault();
+                break;
+            case 'home':
+                navigate('first');
+                e.preventDefault();
+                break;
+            case 'end':
+                navigate('last');
+                e.preventDefault();
+                break;
+            case 'enter':
+            case '1':
+                classifyImage('ok');
+                e.preventDefault();
+                break;
+            case ' ':
+            case '2':
+                classifyImage('nok');
+                e.preventDefault();
+                break;
+            case 'u':
+                if (!e.ctrlKey) {
+                    undoLastOperation();
+                }
+                e.preventDefault();
+                break;
+            case 'z':
+                if (e.ctrlKey) {
+                    undoLastOperation();
+                    e.preventDefault();
+                }
+                break;
+            case 'r':
+                elements.rotateToggle.checked = !elements.rotateToggle.checked;
+                onRotateToggle();
+                e.preventDefault();
+                break;
+            case 'b':
+                elements.bboxToggle.checked = !elements.bboxToggle.checked;
+                onBboxToggle();
+                e.preventDefault();
+                break;
+        }
+    });
+}
+
+// 加载用户信息
+async function loadUser() {
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        
+        if (data.success) {
+            elements.userIp.textContent = data.user.ip;
+        }
+    } catch (error) {
+        console.error('加载用户信息失败:', error);
+    }
+}
+
+// 加载文件夹列表
+async function loadFolders() {
+    try {
+        const response = await fetch('/api/folders');
+        const data = await response.json();
+        
+        if (data.success) {
+            elements.folderSelect.innerHTML = '';
+            
+            if (data.folders.length === 0) {
+                elements.folderSelect.innerHTML = '<option value="">无可用文件夹</option>';
+                return;
+            }
+            
+            data.folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder.name;
+                option.textContent = `${folder.name} (${folder.pending_count})`;
+                elements.folderSelect.appendChild(option);
+            });
+            
+            // 选择第一个文件夹
+            if (data.folders.length > 0) {
+                state.currentFolder = data.folders[0].name;
+                await loadImages();
+            }
+        }
+    } catch (error) {
+        console.error('加载文件夹列表失败:', error);
+        showNotification('加载文件夹失败', 'error');
+    }
+}
+
+// 文件夹改变事件
+async function onFolderChange() {
+    state.currentFolder = elements.folderSelect.value;
+    state.currentIndex = 0;
+    await loadImages();
+}
+
+// 加载图片列表
+async function loadImages() {
+    if (!state.currentFolder) return;
+    
+    try {
+        const response = await fetch(`/api/images?folder=${encodeURIComponent(state.currentFolder)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            state.imageList = data.images;
+            state.totalImages = data.count;
+            state.currentIndex = 0;
+            
+            updateInfo();
+            await loadCurrentImage();
+            await updateGlobalState();
+        }
+    } catch (error) {
+        console.error('加载图片列表失败:', error);
+        showNotification('加载图片列表失败', 'error');
+    }
+}
+
+// 加载当前图片
+async function loadCurrentImage() {
+    if (state.loading) return;
+    
+    if (state.totalImages === 0) {
+        showNoImage();
+        return;
+    }
+    
+    if (state.currentIndex < 0 || state.currentIndex >= state.totalImages) {
+        return;
+    }
+    
+    // 检查是否有预加载的图片
+    if (state.preloadedImage && state.preloadedIndex === state.currentIndex) {
+        const imageName = state.imageList[state.currentIndex];
+        displayImage(state.preloadedImage, imageName);
+        updateInfo();
+        // 预加载下一张
+        preloadNextImage();
+        return;
+    }
+    
+    state.loading = true;
+    showLoading();
+    
+    try {
+        const response = await fetch(
+            `/api/image?folder=${encodeURIComponent(state.currentFolder)}&index=${state.currentIndex}&rotate=${state.rotate ? 1 : 0}&bbox=${state.showBbox ? 1 : 0}`
+        );
+        const data = await response.json();
+        
+        if (data.success) {
+            const imageName = state.imageList[state.currentIndex];
+            displayImage(data.image, imageName);
+            updateImageInfo(data);
+            // 预加载下一张
+            preloadNextImage();
+        } else {
+            showNotification('加载图片失败: ' + data.error, 'error');
+        }
+    } catch (error) {
+        console.error('加载图片失败:', error);
+        showNotification('加载图片失败', 'error');
+    } finally {
+        state.loading = false;
+    }
+}
+
+// 预加载下一张图片
+async function preloadNextImage() {
+    const nextIndex = state.currentIndex + 1;
+    
+    if (nextIndex >= state.totalImages) {
+        return;  // 已经是最后一张
+    }
+    
+    try {
+        const response = await fetch(
+            `/api/image?folder=${encodeURIComponent(state.currentFolder)}&index=${nextIndex}&rotate=${state.rotate ? 1 : 0}&bbox=${state.showBbox ? 1 : 0}`
+        );
+        const data = await response.json();
+        
+        if (data.success) {
+            state.preloadedImage = data.image;
+            state.preloadedIndex = nextIndex;
+            console.log(`已预加载图片 ${nextIndex + 1}/${state.totalImages}`);
+        }
+    } catch (error) {
+        console.error('预加载图片失败:', error);
+    }
+}
+
+// 显示图片
+function displayImage(base64Data, imageName) {
+    elements.mainImage.src = 'data:image/jpeg;base64,' + base64Data;
+    elements.mainImage.classList.add('visible');
+    elements.imageName.textContent = imageName || '';
+    elements.imageName.classList.add('visible');
+    elements.loading.classList.remove('visible');
+    elements.noImage.classList.remove('visible');
+}
+
+// 显示加载中
+function showLoading() {
+    elements.mainImage.classList.remove('visible');
+    elements.imageName.classList.remove('visible');
+    elements.loading.classList.add('visible');
+    elements.noImage.classList.remove('visible');
+}
+
+// 显示无图片
+function showNoImage() {
+    elements.mainImage.classList.remove('visible');
+    elements.imageName.classList.remove('visible');
+    elements.loading.classList.remove('visible');
+    elements.noImage.classList.add('visible');
+}
+
+// 更新信息显示
+function updateInfo() {
+    elements.totalCount.textContent = state.totalImages;
+    elements.currentIndex.textContent = state.totalImages > 0 ? state.currentIndex + 1 : 0;
+    
+    const progress = state.totalImages > 0 ? ((state.currentIndex + 1) / state.totalImages) * 100 : 0;
+    elements.progressBar.style.width = progress + '%';
+    
+    // 更新按钮状态
+    elements.btnFirst.disabled = state.currentIndex === 0 || state.totalImages === 0;
+    elements.btnPrev.disabled = state.currentIndex === 0 || state.totalImages === 0;
+    elements.btnNext.disabled = state.currentIndex >= state.totalImages - 1 || state.totalImages === 0;
+    elements.btnLast.disabled = state.currentIndex >= state.totalImages - 1 || state.totalImages === 0;
+    elements.btnOk.disabled = state.totalImages === 0;
+    elements.btnNok.disabled = state.totalImages === 0;
+}
+
+// 更新图片信息
+function updateImageInfo(data) {
+    if (data.modify_time) {
+        elements.modifyTime.textContent = data.modify_time;
+    }
+    
+    if (data.info) {
+        const width = data.info.display_width || data.info.width;
+        const height = data.info.display_height || data.info.height;
+        elements.imageSize.textContent = `${width} x ${height}`;
+    }
+}
+
+// 导航
+async function navigate(direction) {
+    if (state.totalImages === 0) return;
+    
+    switch(direction) {
+        case 'first':
+            state.currentIndex = 0;
+            break;
+        case 'prev':
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+            }
+            break;
+        case 'next':
+            if (state.currentIndex < state.totalImages - 1) {
+                state.currentIndex++;
+            }
+            break;
+        case 'last':
+            state.currentIndex = state.totalImages - 1;
+            break;
+    }
+    
+    updateInfo();
+    await loadCurrentImage();
+    await updateGlobalState();
+}
+
+// 分类图片
+async function classifyImage(category) {
+    if (state.totalImages === 0 || state.currentIndex >= state.totalImages) {
+        return;
+    }
+    
+    const imageName = state.imageList[state.currentIndex];
+    
+    try {
+        const response = await fetch('/api/classify', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                folder: state.currentFolder,
+                image_name: imageName,
+                category: category
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            
+            // 从列表中移除该图片
+            state.imageList.splice(state.currentIndex, 1);
+            state.totalImages--;
+            
+            // 调整索引
+            if (state.currentIndex >= state.totalImages && state.totalImages > 0) {
+                state.currentIndex = state.totalImages - 1;
+            }
+            
+            // 清空预加载缓存
+            state.preloadedImage = null;
+            state.preloadedIndex = -1;
+            
+            updateInfo();
+            await loadCurrentImage();
+            await checkUndoAvailable();
+            await updateGlobalState();
+        } else {
+            showNotification('操作失败: ' + data.error, 'error');
+        }
+    } catch (error) {
+        showNotification('操作失败: ' + error.message, 'error');
+    }
+}
+
+// 检查撤回可用性
+async function checkUndoAvailable() {
+    try {
+        const response = await fetch('/api/undo/available');
+        const data = await response.json();
+        
+        if (data.success) {
+            elements.btnUndo.disabled = !data.available;
+            if (data.count > 0) {
+                elements.undoCount.textContent = `(${data.count})`;
+            } else {
+                elements.undoCount.textContent = '';
+            }
+        }
+    } catch (error) {
+        console.error('检查撤回状态失败:', error);
+    }
+}
+
+// 撤回操作
+async function undoLastOperation() {
+    if (elements.btnUndo.disabled) return;
+    
+    try {
+        const response = await fetch('/api/undo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(data.message, 'info');
+            
+            // 重新加载当前文件夹的图片列表
+            await loadImages();
+            await checkUndoAvailable();
+        } else {
+            showNotification('撤回失败: ' + data.error, 'error');
+        }
+    } catch (error) {
+        showNotification('撤回失败: ' + error.message, 'error');
+    }
+}
+
+// 旋转切换
+function onRotateToggle() {
+    state.rotate = elements.rotateToggle.checked;
+    loadCurrentImage();
+}
+
+// 边界框切换
+function onBboxToggle() {
+    state.showBbox = elements.bboxToggle.checked;
+    loadCurrentImage();
+}
+
+// 加载全局状态
+async function loadGlobalState() {
+    try {
+        const response = await fetch('/api/state');
+        const data = await response.json();
+        
+        if (data.success && data.state.current_folder) {
+            state.currentFolder = data.state.current_folder;
+            state.currentIndex = data.state.current_index || 0;
+            
+            // 更新文件夹选择
+            elements.folderSelect.value = state.currentFolder;
+            
+            await loadImages();
+        }
+    } catch (error) {
+        console.error('加载全局状态失败:', error);
+    }
+}
+
+// 更新全局状态
+async function updateGlobalState() {
+    try {
+        await fetch('/api/state', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                current_folder: state.currentFolder,
+                current_index: state.currentIndex
+            })
+        });
+    } catch (error) {
+        console.error('更新全局状态失败:', error);
+    }
+}
+
+// 显示通知
+function showNotification(message, type = 'info') {
+    elements.notification.textContent = message;
+    elements.notification.className = 'notification ' + type + ' show';
+    
+    setTimeout(() => {
+        elements.notification.classList.remove('show');
+    }, 3000);
+}
+

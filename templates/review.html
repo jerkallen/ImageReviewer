@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结果确认 - 图片审查系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .review-container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .review-header h2 {
+            color: #FFFFFF;
+            font-size: 1.8rem;
+        }
+
+        .controls-bar {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls-bar select {
+            padding: 0.6rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #0A2472;
+            border-radius: 4px;
+            color: #FFFFFF;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.6rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #28A745;
+        }
+
+        .tab.nok.active {
+            background: #DC3545;
+        }
+
+        .info-bar {
+            color: #B0B0B0;
+            font-size: 0.95rem;
+        }
+
+        .thumbnails-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .thumbnail-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .thumbnail-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .thumbnail-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.3);
+            display: block;
+        }
+
+        .thumbnail-info {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 90%;
+            z-index: 5;
+        }
+
+        .thumbnail-name {
+            color: #FFFFFF;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 0.3rem 0.6rem;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pagination button {
+            padding: 0.6rem 1.2rem;
+            background: #0A2472;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #1B3A6B;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            color: #E8E8E8;
+            font-size: 1rem;
+        }
+
+        /* 图片查看模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-image {
+            max-width: 90vw;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .modal-info {
+            color: #FFFFFF;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: #FFFFFF;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+        }
+
+        .modal-close:hover {
+            color: #DC3545;
+        }
+
+        .no-images {
+            text-align: center;
+            padding: 4rem;
+            color: #B0B0B0;
+            font-size: 1.3rem;
+        }
+
+        .loading-message {
+            text-align: center;
+            padding: 4rem;
+            color: #E8E8E8;
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>结果确认</h1>
+        </header>
+
+        <div class="review-container">
+            <div class="review-header">
+                <h2>浏览分类结果</h2>
+                <a href="/" class="back-link">返回主页</a>
+            </div>
+
+            <!-- 控制栏 -->
+            <div class="controls-bar">
+                <select id="folder-select">
+                    <option value="">选择项目文件夹...</option>
+                </select>
+
+                <div class="category-tabs">
+                    <button class="tab active" onclick="switchCategory('ok')">OK文件夹</button>
+                    <button class="tab nok" onclick="switchCategory('nok')">NOK文件夹</button>
+                </div>
+
+                <div class="info-bar">
+                    <span id="image-count">加载中...</span>
+                </div>
+            </div>
+
+            <!-- 缩略图网格 -->
+            <div id="thumbnails-container" class="thumbnails-grid">
+                <div class="loading-message">加载中...</div>
+            </div>
+
+            <!-- 分页控件 -->
+            <div class="pagination">
+                <button id="btn-prev-page" onclick="prevPage()">上一页</button>
+                <span id="page-info">- / -</span>
+                <button id="btn-next-page" onclick="nextPage()">下一页</button>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>©2024 产线图片二次确认系统 WxP/MOE4</p>
+        </footer>
+    </div>
+
+    <!-- 图片查看模态框 -->
+    <div id="modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <img id="modal-image" class="modal-image" alt="图片预览">
+            <div id="modal-info" class="modal-info"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/review.js') }}"></script>
+</body>
+</html>
+

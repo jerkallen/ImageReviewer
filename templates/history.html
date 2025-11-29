@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作历史 - 图片审查系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .history-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .history-header h2 {
+            color: #FFFFFF;
+            font-size: 1.8rem;
+        }
+
+        .back-link {
+            padding: 0.6rem 1.2rem;
+            background: #0A2472;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: #1B3A6B;
+        }
+
+        .filters {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #B0B0B0;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #0A2472;
+            border-radius: 4px;
+            color: #FFFFFF;
+        }
+
+        .filter-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(10, 36, 114, 0.3);
+            border-radius: 6px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28A745;
+        }
+
+        .stat-label {
+            color: #B0B0B0;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(10, 36, 114, 0.5);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        td {
+            color: #E8E8E8;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .op-type {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .op-type.ok {
+            background: rgba(40, 167, 69, 0.3);
+            color: #28A745;
+        }
+
+        .op-type.nok {
+            background: rgba(220, 53, 69, 0.3);
+            color: #DC3545;
+        }
+
+        .op-type.undo {
+            background: rgba(255, 165, 0, 0.3);
+            color: #FFA500;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: #B0B0B0;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>操作历史查询</h1>
+        </header>
+
+        <div class="history-container">
+            <div class="history-header">
+                <h2>历史记录</h2>
+                <a href="/" class="back-link">返回主页</a>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-today">0</div>
+                    <div class="stat-label">今日操作</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">总操作数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-ok">0</div>
+                    <div class="stat-label">OK分类</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-nok">0</div>
+                    <div class="stat-label">NOK分类</div>
+                </div>
+            </div>
+
+            <!-- 筛选器 -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label>开始日期</label>
+                    <input type="date" id="filter-start-date">
+                </div>
+                <div class="filter-group">
+                    <label>结束日期</label>
+                    <input type="date" id="filter-end-date">
+                </div>
+                <div class="filter-group">
+                    <label>用户</label>
+                    <select id="filter-user">
+                        <option value="">全部用户</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>操作类型</label>
+                    <select id="filter-type">
+                        <option value="">全部类型</option>
+                        <option value="classify_ok">OK分类</option>
+                        <option value="classify_nok">NOK分类</option>
+                        <option value="undo">撤回操作</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn" onclick="applyFilters()">查询</button>
+                    <button class="btn" onclick="resetFilters()">重置</button>
+                    <button class="btn" onclick="exportToCSV()">导出CSV</button>
+                </div>
+            </div>
+
+            <!-- 操作记录表格 -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>用户</th>
+                            <th>操作类型</th>
+                            <th>图片名称</th>
+                            <th>源文件夹</th>
+                            <th>目标文件夹</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        <tr>
+                            <td colspan="6" class="no-data">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>©2024 产线图片二次确认系统 WxP/MOE4</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/history.js') }}"></script>
+</body>
+</html>
+
