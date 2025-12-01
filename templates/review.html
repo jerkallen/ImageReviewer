@@ -24,6 +24,32 @@
             font-size: 1.8rem;
         }
 
+        body.theme-light .review-header h2 {
+            color: #333333;
+        }
+
+        .back-link {
+            padding: 0.6rem 1.2rem;
+            background: #0A2472;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: #1B3A6B;
+        }
+
+        body.theme-light .back-link {
+            background: #e0e0e0;
+            color: #333333;
+        }
+
+        body.theme-light .back-link:hover {
+            background: #d0d0d0;
+        }
+
         .controls-bar {
             background: rgba(255, 255, 255, 0.05);
             padding: 1.5rem;
@@ -35,6 +61,10 @@
             flex-wrap: wrap;
         }
 
+        body.theme-light .controls-bar {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
         .controls-bar select {
             padding: 0.6rem 1rem;
             background: rgba(255, 255, 255, 0.1);
@@ -43,6 +73,12 @@
             color: #FFFFFF;
             font-size: 1rem;
             min-width: 200px;
+        }
+
+        body.theme-light .controls-bar select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #d0d0d0;
+            color: #333333;
         }
 
         .category-tabs {
@@ -60,6 +96,11 @@
             transition: all 0.3s;
         }
 
+        body.theme-light .tab {
+            background: rgba(0, 0, 0, 0.05);
+            color: #333333;
+        }
+
         .tab.active {
             background: #28A745;
         }
@@ -71,6 +112,10 @@
         .info-bar {
             color: #B0B0B0;
             font-size: 0.95rem;
+        }
+
+        body.theme-light .info-bar {
+            color: #666666;
         }
 
         .thumbnails-grid {
@@ -89,9 +134,17 @@
             position: relative;
         }
 
+        body.theme-light .thumbnail-item {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
         .thumbnail-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        body.theme-light .thumbnail-item:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .thumbnail-image {
@@ -124,6 +177,11 @@
             text-overflow: ellipsis;
         }
 
+        body.theme-light .thumbnail-name {
+            color: #333333;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
         .pagination {
             display: flex;
             justify-content: center;
@@ -142,8 +200,17 @@
             transition: background 0.3s;
         }
 
+        body.theme-light .pagination button {
+            background: #e0e0e0;
+            color: #333333;
+        }
+
         .pagination button:hover:not(:disabled) {
             background: #1B3A6B;
+        }
+
+        body.theme-light .pagination button:hover:not(:disabled) {
+            background: #d0d0d0;
         }
 
         .pagination button:disabled {
@@ -154,6 +221,10 @@
         .pagination span {
             color: #E8E8E8;
             font-size: 1rem;
+        }
+
+        body.theme-light .pagination span {
+            color: #333333;
         }
 
         /* 图片查看模态框 */
@@ -198,6 +269,10 @@
             font-size: 1.1rem;
         }
 
+        body.theme-light .modal-info {
+            color: #333333;
+        }
+
         .modal-close {
             position: absolute;
             top: -40px;
@@ -215,6 +290,14 @@
             color: #DC3545;
         }
 
+        body.theme-light .modal-close {
+            color: #333333;
+        }
+
+        body.theme-light .modal-close:hover {
+            color: #DC3545;
+        }
+
         .no-images {
             text-align: center;
             padding: 4rem;
@@ -222,11 +305,19 @@
             font-size: 1.3rem;
         }
 
+        body.theme-light .no-images {
+            color: #666666;
+        }
+
         .loading-message {
             text-align: center;
             padding: 4rem;
             color: #E8E8E8;
             font-size: 1.3rem;
+        }
+
+        body.theme-light .loading-message {
+            color: #333333;
         }
     </style>
 </head>
@@ -272,7 +363,7 @@
         </div>
 
         <footer class="footer">
-            <p>©2024 产线图片二次确认系统 WxP/MOE4</p>
+            <p>WxP/MOE4 产线图片二次确认系统 v2.0</p>
         </footer>
     </div>
 

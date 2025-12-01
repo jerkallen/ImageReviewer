@@ -41,6 +41,7 @@ const elements = {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
     initializeApp();
     setupEventListeners();
     setupKeyboardShortcuts();
@@ -152,6 +153,7 @@ async function loadFolders() {
         const data = await response.json();
         
         if (data.success) {
+            const currentSelectedFolder = elements.folderSelect.value;
             elements.folderSelect.innerHTML = '';
             
             if (data.folders.length === 0) {
@@ -166,15 +168,47 @@ async function loadFolders() {
                 elements.folderSelect.appendChild(option);
             });
             
-            // 选择第一个文件夹
-            if (data.folders.length > 0) {
+            // 恢复之前选择的文件夹
+            if (currentSelectedFolder) {
+                elements.folderSelect.value = currentSelectedFolder;
+                state.currentFolder = currentSelectedFolder;
+            } else if (data.folders.length > 0) {
+                // 选择第一个文件夹
                 state.currentFolder = data.folders[0].name;
+                elements.folderSelect.value = state.currentFolder;
+            }
+            
+            // 如果当前文件夹存在，加载图片
+            if (state.currentFolder) {
                 await loadImages();
             }
         }
     } catch (error) {
         console.error('加载文件夹列表失败:', error);
         showNotification('加载文件夹失败', 'error');
+    }
+}
+
+// 更新文件夹选择下拉框中指定文件夹的显示数量
+async function updateFolderDisplayCount(folderName) {
+    if (!folderName) return;
+    
+    try {
+        const response = await fetch('/api/folders');
+        const data = await response.json();
+        
+        if (data.success) {
+            const folder = data.folders.find(f => f.name === folderName);
+            if (folder) {
+                // 更新下拉框中对应选项的显示文本
+                const option = elements.folderSelect.querySelector(`option[value="${folderName}"]`);
+                if (option) {
+                    option.textContent = `${folder.name} (${folder.pending_count})`;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('更新文件夹显示失败:', error);
     }
 }
 
@@ -387,7 +421,9 @@ async function classifyImage(category) {
         const data = await response.json();
         
         if (data.success) {
-            showNotification(data.message, 'success');
+            // 根据分类类型决定通知颜色：NOK显示红色，OK显示绿色
+            const notificationType = data.category === 'nok' ? 'error' : 'success';
+            showNotification(data.message, notificationType);
             
             // 从列表中移除该图片
             state.imageList.splice(state.currentIndex, 1);
@@ -398,14 +434,24 @@ async function classifyImage(category) {
                 state.currentIndex = state.totalImages - 1;
             }
             
-            // 清空预加载缓存
-            state.preloadedImage = null;
-            state.preloadedIndex = -1;
+            // 检查预加载缓存是否仍然有效
+            // 如果预加载的是下一张图片（当前索引+1），移除当前图片后，预加载的图片索引会变成当前索引
+            // 所以需要更新预加载索引，使其匹配新的索引
+            if (state.preloadedImage && state.preloadedIndex === state.currentIndex + 1) {
+                // 预加载的图片正好是下一张要显示的，更新索引以匹配新的位置
+                state.preloadedIndex = state.currentIndex;
+            } else {
+                // 预加载的图片不是下一张，清空缓存
+                state.preloadedImage = null;
+                state.preloadedIndex = -1;
+            }
             
             updateInfo();
             await loadCurrentImage();
             await checkUndoAvailable();
             await updateGlobalState();
+            // 更新文件夹选择下拉框中的图片数量显示
+            await updateFolderDisplayCount(state.currentFolder);
         } else {
             showNotification('操作失败: ' + data.error, 'error');
         }
@@ -451,6 +497,8 @@ async function undoLastOperation() {
             // 重新加载当前文件夹的图片列表
             await loadImages();
             await checkUndoAvailable();
+            // 更新文件夹选择下拉框中的图片数量显示
+            await updateFolderDisplayCount(state.currentFolder);
         } else {
             showNotification('撤回失败: ' + data.error, 'error');
         }
@@ -515,5 +563,59 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         elements.notification.classList.remove('show');
     }, 3000);
+}
+
+// 主题切换功能
+function initializeTheme() {
+    // 从localStorage读取保存的主题
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    
+    // 创建主题切换按钮
+    createThemeToggle();
+}
+
+function createThemeToggle() {
+    // 检查是否已存在主题切换按钮
+    if (document.getElementById('theme-toggle')) {
+        return;
+    }
+    
+    const toggle = document.createElement('button');
+    toggle.id = 'theme-toggle';
+    toggle.className = 'theme-toggle';
+    toggle.innerHTML = '<span class="theme-toggle-icon">🌙</span><span class="theme-toggle-text">深色</span>';
+    toggle.title = '切换主题';
+    toggle.onclick = toggleTheme;
+    
+    document.body.appendChild(toggle);
+    updateThemeToggleText();
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.classList.contains('theme-light') ? 'light' : 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
+function applyTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('theme-light');
+    } else {
+        document.body.classList.remove('theme-light');
+    }
+    updateThemeToggleText();
+}
+
+function updateThemeToggleText() {
+    const toggle = document.getElementById('theme-toggle');
+    if (toggle) {
+        const isLight = document.body.classList.contains('theme-light');
+        const icon = toggle.querySelector('.theme-toggle-icon');
+        const text = toggle.querySelector('.theme-toggle-text');
+        if (icon) icon.textContent = isLight ? '☀️' : '🌙';
+        if (text) text.textContent = isLight ? '浅色' : '深色';
+    }
 }
 

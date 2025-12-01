@@ -204,7 +204,7 @@ body {
 .controls {
     display: flex;
     justify-content: center;
-    gap: 1.2rem;
+    gap: 6rem;
     margin-bottom: 1rem;
 }
 
@@ -446,5 +446,176 @@ body {
         margin: 0.2rem;
         padding: 0.2rem 0.4rem;
     }
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.theme-toggle-icon {
+    font-size: 1.2rem;
+}
+
+/* 浅色主题样式 */
+body.theme-light {
+    background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+    color: #333333;
+}
+
+.theme-light .header {
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.theme-light .header h1 {
+    color: #333333;
+}
+
+.theme-light .sidebar {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .sidebar h3 {
+    color: #333333;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.theme-light .user-section,
+.theme-light .folder-section,
+.theme-light .info-section,
+.theme-light .options-section,
+.theme-light .undo-section,
+.theme-light .nav-section {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.theme-light .user-info label,
+.theme-light .info-item label {
+    color: #666666;
+}
+
+.theme-light .user-info span,
+.theme-light .info-item span {
+    color: #333333;
+}
+
+.theme-light #user-name {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid #d0d0d0;
+    color: #333333;
+}
+
+.theme-light .btn-small {
+    background: #e0e0e0;
+    color: #333333;
+}
+
+.theme-light .btn-small:hover {
+    background: #d0d0d0;
+}
+
+.theme-light .folder-select {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #d0d0d0;
+    color: #333333;
+}
+
+.theme-light .folder-select option {
+    background: #ffffff;
+    color: #333333;
+}
+
+.theme-light .progress-container {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .switch-label span {
+    color: #333333;
+}
+
+.theme-light .nav-link {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333333;
+}
+
+.theme-light .nav-link:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .image-area {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .btn:not(.btn-ok):not(.btn-nok):not(.btn-undo) {
+    background: #e0e0e0;
+    color: #333333;
+}
+
+.theme-light .btn:not(.btn-ok):not(.btn-nok):not(.btn-undo):hover:not(:disabled) {
+    background: #d0d0d0;
+}
+
+.theme-light .image-container {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .image-name {
+    color: #333333;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.theme-light .loading,
+.theme-light .no-image {
+    color: #666666;
+}
+
+.theme-light .shortcuts {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.theme-light .shortcuts h4 {
+    color: #333333;
+}
+
+.theme-light .shortcuts span {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333333;
+}
+
+.theme-light .footer {
+    background: rgba(255, 255, 255, 0.9);
+    border-top: 2px solid #e0e0e0;
+    color: #666666;
+}
+
+.theme-light .theme-toggle {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #333333;
+}
+
+.theme-light .theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.15);
 }
 

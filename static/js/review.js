@@ -12,6 +12,7 @@ const state = {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
     initializePage();
 });
 
@@ -267,4 +268,58 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// 主题切换功能
+function initializeTheme() {
+    // 从localStorage读取保存的主题
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    
+    // 创建主题切换按钮
+    createThemeToggle();
+}
+
+function createThemeToggle() {
+    // 检查是否已存在主题切换按钮
+    if (document.getElementById('theme-toggle')) {
+        return;
+    }
+    
+    const toggle = document.createElement('button');
+    toggle.id = 'theme-toggle';
+    toggle.className = 'theme-toggle';
+    toggle.innerHTML = '<span class="theme-toggle-icon">🌙</span><span class="theme-toggle-text">深色</span>';
+    toggle.title = '切换主题';
+    toggle.onclick = toggleTheme;
+    
+    document.body.appendChild(toggle);
+    updateThemeToggleText();
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.classList.contains('theme-light') ? 'light' : 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
+function applyTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('theme-light');
+    } else {
+        document.body.classList.remove('theme-light');
+    }
+    updateThemeToggleText();
+}
+
+function updateThemeToggleText() {
+    const toggle = document.getElementById('theme-toggle');
+    if (toggle) {
+        const isLight = document.body.classList.contains('theme-light');
+        const icon = toggle.querySelector('.theme-toggle-icon');
+        const text = toggle.querySelector('.theme-toggle-text');
+        if (icon) icon.textContent = isLight ? '☀️' : '🌙';
+        if (text) text.textContent = isLight ? '浅色' : '深色';
+    }
+}
 
