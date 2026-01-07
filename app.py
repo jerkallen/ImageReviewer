@@ -8,6 +8,7 @@ import os
 import time
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_from_directory
+from werkzeug.middleware.proxy_fix import ProxyFix
 from config_handler import get_config_handler
 from database import get_database
 from user_handler import get_client_ip, get_user_display_name, format_user_info
@@ -19,6 +20,13 @@ from image_handler import (
 # 初始化Flask应用
 app = Flask(__name__)
 app.secret_key = 'image_reviewer_secret_key_2024'
+
+# 配置ProxyFix中间件，正确处理代理请求以获取真实客户端IP
+# x_for=1: 信任X-Forwarded-For头的第一个值（客户端IP）
+# x_proto=1: 信任X-Forwarded-Proto头（http/https）
+# x_host=1: 信任X-Forwarded-Host头
+# x_prefix=1: 信任X-Forwarded-Prefix头
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # 加载配置
 config = get_config_handler()

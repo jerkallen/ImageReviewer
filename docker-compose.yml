@@ -1,23 +1,26 @@
-version: '3'
+# 容器化部署配置
+# 兼容性: Podman Desktop / Docker (完全兼容 OCI 标准)
+# 自动重启: 已启用，系统重启后自动恢复服务
+# 运行环境: Windows 11 + WSL2 / Linux
 
-services:  # 定义服务列表
-  image-reviewer:  # 服务名称
-    container_name: image_reviewer  # 容器名称
-    image: image_reviewer:latest  # 使用的镜像名称和标签
-    build: .  # 指定Dockerfile所在目录，用于构建镜像
-    ports:  # 端口映射配置
-      - "8501:8501"  # HTTPS/HTTP端口映射
-    volumes:  # 数据卷配置
-      - ./certs:/app/certs  # 挂载证书目录以保留生成的证书
-      - ./data:/data  # 挂载data目录到容器的/data目录
-    environment:  # 环境变量配置
-      - TZ=Asia/Shanghai  # 设置时区为上海
-      - ROOT_DIRECTORY=/data  # 设置应用程序的根目录
-    restart: always  # 容器退出时总是自动重启
-    networks:  # 指定容器连接的网络
-      - image-reviewer-network  # 使用名为image-reviewer-network的网络
+services:
+  image-reviewer:
+    container_name: image_reviewer
+    image: image_reviewer:latest
+    build: .  # 构建上下文目录
+    ports:
+      - "8501:8501"  # HTTPS/HTTP 端口映射（兼容 Windows 和 WSL2）
+    volumes:
+      - ./certs:/app/certs  # SSL 证书目录（持久化）
+      - ./data:/data  # 数据目录（图片、日志、数据库）
+    environment:
+      - TZ=Asia/Shanghai  # 时区设置
+      - ROOT_DIRECTORY=/data  # 应用数据根目录
+    restart: always  # 自动重启策略：总是重启（Podman/Docker 通用）
+    networks:
+      - image-reviewer-network
 
-networks:  # 定义网络配置
-  image-reviewer-network:  # 网络名称
-    driver: bridge  # 使用bridge驱动，这是Docker的默认网络驱动
+networks:
+  image-reviewer-network:
+    driver: bridge  # 桥接网络（Podman/Docker 通用）
 

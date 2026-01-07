@@ -1,17 +1,31 @@
+# 容器构建忽略文件
+# 适用于 Podman / Docker (OCI 标准)
+
+# Python 相关
 venv
 __pycache__
 *.pyc
 *.pyo
 *.pyd
+
+# 版本控制
 .git
 .gitignore
+
+# 文档和脚本
 *.md
 *.bat
+
+# 运行时数据（通过 volume 挂载）
 data/images/*
 data/logs/*
 data/app.db
 certs/*
+
+# 测试文件
 test_*.py
+
+# IDE 配置
 .vscode
 .idea
 

@@ -22,7 +22,7 @@ call venv\Scripts\activate.bat
 
 echo [信息] 启动Flask应用...
 echo.
-python run_app.py
+venv\Scripts\python.exe run_app.py
 
 REM 如果出错，暂停以便查看错误信息
 if errorlevel 1 (
