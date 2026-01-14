@@ -10,6 +10,7 @@ const state = {
     showBbox: true,
     preloadedImage: null,  // 预加载的图片缓存
     preloadedIndex: -1,    // 预加载的图片索引
+    preloadedImageName: null,  // 预加载的图片文件名
     loading: false
 };
 
@@ -257,8 +258,8 @@ async function loadCurrentImage() {
     
     // 检查是否有预加载的图片
     if (state.preloadedImage && state.preloadedIndex === state.currentIndex) {
-        const imageName = state.imageList[state.currentIndex];
-        displayImage(state.preloadedImage, imageName);
+        // 使用预加载时保存的文件名，而不是从前端列表获取
+        displayImage(state.preloadedImage, state.preloadedImageName);
         updateInfo();
         // 预加载下一张
         preloadNextImage();
@@ -275,8 +276,8 @@ async function loadCurrentImage() {
         const data = await response.json();
         
         if (data.success) {
-            const imageName = state.imageList[state.currentIndex];
-            displayImage(data.image, imageName);
+            // 使用后端返回的文件名，确保与实际显示的图片匹配
+            displayImage(data.image, data.name);
             updateImageInfo(data);
             // 预加载下一张
             preloadNextImage();
@@ -308,6 +309,7 @@ async function preloadNextImage() {
         if (data.success) {
             state.preloadedImage = data.image;
             state.preloadedIndex = nextIndex;
+            state.preloadedImageName = data.name;  // 保存预加载图片的文件名
             console.log(`已预加载图片 ${nextIndex + 1}/${state.totalImages}`);
         }
     } catch (error) {
@@ -444,6 +446,7 @@ async function classifyImage(category) {
                 // 预加载的图片不是下一张，清空缓存
                 state.preloadedImage = null;
                 state.preloadedIndex = -1;
+                state.preloadedImageName = null;
             }
             
             updateInfo();

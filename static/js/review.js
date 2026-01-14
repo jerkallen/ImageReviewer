@@ -149,10 +149,12 @@ async function createThumbnailElement(imageName, index) {
         const data = await response.json();
         
         if (data.success) {
+            // 使用后端返回的文件名，确保与实际显示的图片匹配
+            const actualName = data.name || imageName;
             div.innerHTML = `
-                <img class="thumbnail-image" src="data:image/jpeg;base64,${data.image}" alt="${imageName}">
+                <img class="thumbnail-image" src="data:image/jpeg;base64,${data.image}" alt="${actualName}">
                 <div class="thumbnail-info">
-                    <div class="thumbnail-name" title="${imageName}">${imageName}</div>
+                    <div class="thumbnail-name" title="${actualName}">${actualName}</div>
                 </div>
             `;
             
