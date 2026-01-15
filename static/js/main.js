@@ -11,7 +11,12 @@ const state = {
     preloadedImage: null,  // 预加载的图片缓存
     preloadedIndex: -1,    // 预加载的图片索引
     preloadedImageName: null,  // 预加载的图片文件名
-    loading: false
+    loading: false,
+    // 飞书设置
+    feishuSettings: {
+        nok_send_enabled: false,
+        chat_id: ''
+    }
 };
 
 // DOM元素
@@ -51,9 +56,25 @@ document.addEventListener('DOMContentLoaded', () => {
 // 初始化应用
 async function initializeApp() {
     await loadUser();
+    await loadFeishuSettings();
     await loadFolders();
     await loadGlobalState();
     checkUndoAvailable();
+}
+
+// 加载飞书设置
+async function loadFeishuSettings() {
+    try {
+        const response = await fetch('/api/settings');
+        const data = await response.json();
+        
+        if (data.success && data.settings) {
+            state.feishuSettings.nok_send_enabled = data.settings.feishu_nok_send_enabled || false;
+            state.feishuSettings.chat_id = data.settings.feishu_chat_id || '';
+        }
+    } catch (error) {
+        console.error('加载飞书设置失败:', error);
+    }
 }
 
 // 设置事件监听
@@ -409,7 +430,14 @@ async function classifyImage(category) {
     
     const imageName = state.imageList[state.currentIndex];
     
+    // 如果是NOK分类且飞书发送功能开启，先弹出确认框
+    let shouldSendFeishu = false;
+    if (category === 'nok' && state.feishuSettings.nok_send_enabled && state.feishuSettings.chat_id) {
+        shouldSendFeishu = confirm('是否发送此图片到飞书群？');
+    }
+    
     try {
+        // 执行分类操作
         const response = await fetch('/api/classify', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -426,6 +454,11 @@ async function classifyImage(category) {
             // 根据分类类型决定通知颜色：NOK显示红色，OK显示绿色
             const notificationType = data.category === 'nok' ? 'error' : 'success';
             showNotification(data.message, notificationType);
+            
+            // 如果用户确认发送到飞书，执行发送操作
+            if (shouldSendFeishu) {
+                await sendToFeishu(state.currentFolder, imageName, state.feishuSettings.chat_id);
+            }
             
             // 从列表中移除该图片
             state.imageList.splice(state.currentIndex, 1);
@@ -460,6 +493,32 @@ async function classifyImage(category) {
         }
     } catch (error) {
         showNotification('操作失败: ' + error.message, 'error');
+    }
+}
+
+// 发送图片到飞书群
+async function sendToFeishu(folder, imageName, chatId) {
+    try {
+        const response = await fetch('/api/feishu/send', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                folder: folder,
+                image_name: imageName,
+                chat_id: chatId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('已发送到飞书群', 'success');
+        } else {
+            showNotification('发送飞书消息失败: ' + data.error, 'error');
+        }
+    } catch (error) {
+        console.error('发送飞书消息失败:', error);
+        showNotification('发送飞书消息失败', 'error');
     }
 }
 

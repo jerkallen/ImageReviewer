@@ -5,6 +5,7 @@
 提供所有Web接口和API
 """
 import os
+import json
 import time
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_from_directory
@@ -16,6 +17,7 @@ from image_handler import (
     scan_project_folders, get_image_list, get_image_count,
     load_and_process_image, move_image_with_txt, create_thumbnail
 )
+from feishu_msg import Feishu
 
 # 初始化Flask应用
 app = Flask(__name__)
@@ -66,6 +68,12 @@ def history():
 def review():
     """结果确认页面"""
     return render_template('review.html')
+
+
+@app.route('/settings')
+def settings():
+    """设置页面"""
+    return render_template('settings.html')
 
 
 # ==================== 基础API ====================
@@ -479,6 +487,200 @@ def api_users():
             'error': str(e)
         }), 500
 
+
+# ==================== 设置相关API ====================
+# ==================== 设置相关API ====================
+@app.route('/api/settings', methods=['GET'])
+def api_get_settings():
+    """获取应用设置"""
+    try:
+        feishu_settings = config.get_feishu_settings()
+        return jsonify({
+            'success': True,
+            'settings': {
+                'feishu_nok_send_enabled': feishu_settings.get('nok_send_enabled', False),
+                'feishu_chat_id': feishu_settings.get('chat_id', '')
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+@app.route('/api/settings', methods=['POST'])
+def api_update_settings():
+    """更新应用设置"""
+    try:
+        data = request.json
+        nok_send_enabled = data.get('feishu_nok_send_enabled')
+        chat_id = data.get('feishu_chat_id', '').strip()
+        # 更新配置
+        success = config.update_feishu_settings(
+            nok_send_enabled=nok_send_enabled,
+            chat_id=chat_id
+        )
+        if success:
+            return jsonify({
+                'success': True,
+                'message': '设置已保存'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '保存设置失败'
+            }), 500
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+@app.route('/api/feishu/test', methods=['POST'])
+def api_test_feishu():
+    """测试飞书消息发送"""
+    try:
+        data = request.json
+        chat_id = data.get('chat_id', '').strip()
+        if not chat_id:
+            return jsonify({
+                'success': False,
+                'error': '请填写飞书群ID'
+            }), 400
+        # 创建飞书实例并发送测试消息
+        print('chat_id:', chat_id)
+        feishu = Feishu()
+        # test_msg = {
+        #     "msgType": "text",
+        #     "receiveId": chat_id,
+        #     "content": {
+        #         "text": f"【图片审查系统】测试消息\n发送时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        #     }
+        # }
+        imgurl = feishu._get_imgkey("static/test_img.png")
+        img_id = imgurl['result']
+        test_msg = {
+            "msgType": "post",
+            "receiveId": chat_id,
+            "content": {
+                    "zh_cn": {
+                        "title": "【图片审查系统】",
+                        "content": 
+                        [
+                            [{
+                                "tag": "text",
+                                "text": f"MOE4图片审查系统,测试消息,发送时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                            },
+                            {
+                                "tag": "img",
+                                "image_key": img_id,
+                                "text": "示例图片"
+                            }
+                            ]
+                        ]
+                    }
+            }
+            }
+        result = feishu.send_group_msg(test_msg)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        # 判断是否成功
+        if result.get('code') == 0:
+            return jsonify({
+                'success': True,
+                'message': '测试消息发送成功',
+                'result': result
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f"发送失败: {result.get('msg', '未知错误')}",
+                'result': result
+            }), 400
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'测试失败: {str(e)}'
+        }), 500
+@app.route('/api/feishu/send', methods=['POST'])
+def api_send_feishu():
+    """发送图片到飞书群"""
+    try:
+        data = request.json
+        folder = data.get('folder')
+        image_name = data.get('image_name')
+        chat_id = data.get('chat_id')
+        if not all([folder, image_name, chat_id]):
+            return jsonify({
+                'success': False,
+                'error': '参数不完整'
+            }), 400
+        # 获取用户信息
+        ip = get_client_ip(request)
+        user = db.get_or_create_user(ip)
+        user_name = user.get('name') or ip
+        # 构建图片路径
+        # 图片已经被移动到NOK文件夹了
+        image_folder = os.path.join(scan_root, folder, nok_folder_name)
+        image_path = os.path.join(image_folder, image_name)
+        if not os.path.exists(image_path):
+            return jsonify({
+                'success': False,
+                'error': '图片文件不存在'
+            }), 404
+        # 初始化飞书客户端
+        feishu = Feishu()
+        imgurl = feishu._get_imgkey(image_path)
+        image_key = imgurl['result']
+        # # 上传图片获取image_key
+        # img_result = feishu._get_imgkey(image_path)
+        # if img_result.get('code') != 0:
+        #     return jsonify({
+        #         'success': False,
+        #         'error': f"上传图片失败: {img_result.get('msg', '未知错误')}"
+        #     }), 500
+        # image_key = img_result.get('data', {}).get('image_key')
+        if not image_key:
+            return jsonify({
+                'success': False,
+                'error': '获取图片image_key失败'
+            }), 500
+        # 构造富文本消息
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        msg_data = {
+            "msgType": "post",
+            "receiveId": chat_id,
+            "content": {
+                "zh_cn": {
+                    "title": "【MOE4图片审查系统】NOK图片通知",
+                    "content": [
+                        [{
+                            "tag": "text",
+                            "text": f"项目文件夹: {folder}\n图片名称: {image_name}\n操作时间: {current_time}\n操作用户: {user_name}"
+                        },
+                        {
+                            "tag": "img",
+                            "image_key": image_key,
+                            "text": image_name
+                        }]
+                    ]
+                }
+            }
+        }
+        # 发送消息到群
+        result = feishu.send_group_msg(msg_data)
+        if result.get('code') == 0:
+            return jsonify({
+                'success': True,
+                'message': '已发送到飞书群'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f"发送失败: {result.get('msg', '未知错误')}"
+            }), 500
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'发送飞书消息失败: {str(e)}'
+        }), 500
 
 # ==================== 结果确认页面API ====================
 

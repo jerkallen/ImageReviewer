@@ -28,6 +28,10 @@ class ConfigHandler:
             "default_folders": {
                 "ok": "OK",
                 "nok": "NOK"
+            },
+            "feishu_settings": {
+                "nok_send_enabled": False,
+                "chat_id": ""
             }
         }
         
@@ -119,6 +123,30 @@ class ConfigHandler:
     def get_default_folders(self) -> Dict[str, str]:
         """获取默认文件夹配置"""
         return self.config.get("default_folders", {"ok": "OK", "nok": "NOK"})
+    
+    def get_feishu_settings(self) -> Dict[str, Any]:
+        """获取飞书设置"""
+        return self.config.get("feishu_settings", {
+            "nok_send_enabled": False,
+            "chat_id": ""
+        })
+    
+    def update_feishu_settings(self, nok_send_enabled: bool = None, chat_id: str = None) -> bool:
+        """更新飞书设置"""
+        try:
+            feishu_settings = self.get_feishu_settings()
+            
+            if nok_send_enabled is not None:
+                feishu_settings["nok_send_enabled"] = nok_send_enabled
+            
+            if chat_id is not None:
+                feishu_settings["chat_id"] = chat_id
+            
+            self.config["feishu_settings"] = feishu_settings
+            return self.save_config()
+        except Exception as e:
+            print(f"错误: 更新飞书设置失败: {str(e)}")
+            return False
     
     def ensure_directories_exist(self) -> None:
         """确保所有必要目录存在"""

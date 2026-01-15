@@ -30,29 +30,80 @@
 - Python 3.8 或更高版本
 - Windows / Linux / macOS
 
-## 安装步骤
+## 快速启动
 
-### 1. 克隆或下载项目
+### 第一步：安装依赖
 
-```bash
-cd D:\code\projects\ImageReviewer
-```
-
-### 2. 创建虚拟环境（推荐）
+确保你在项目根目录下，然后激活虚拟环境并安装依赖：
 
 ```bash
+# 创建虚拟环境（如果还未创建）
 python -m venv venv
-```
 
-激活虚拟环境：
-- Windows: `venv\Scripts\activate`
-- Linux/macOS: `source venv/bin/activate`
+# 激活虚拟环境
+# Windows:
+venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
 
-### 3. 安装依赖
-
-```bash
+# 安装依赖
 pip install -r requirements.txt
 ```
+
+### 第二步：准备测试数据
+
+在 `data/images` 目录下创建项目文件夹，例如：
+
+```
+data/images/
+└── test_project/
+    ├── image1.jpg
+    ├── image1.txt  (可选，YOLO标注文件)
+    ├── image2.jpg
+    └── ...
+```
+
+系统会自动为每个项目创建 `OK` 和 `NOK` 子文件夹。
+
+#### YOLO标注文件格式（可选）
+
+如果你有YOLO格式的边界框标注，可以创建与图片同名的`.txt`文件：
+
+```
+# 格式：x1 y1 x2 y2 confidence
+100.5 200.3 300.7 400.2 0.95
+150.0 250.0 350.0 450.0 0.88
+```
+
+### 第三步：启动应用
+
+#### HTTPS模式（推荐）
+
+```bash
+python run_app.py
+```
+
+首次启动会自动生成SSL证书。
+
+#### HTTP模式
+
+```bash
+python run_app.py --no-https
+```
+
+### 第四步：访问应用
+
+在浏览器中打开：
+- HTTPS: `https://localhost:8501`
+- HTTP: `http://localhost:8501`
+
+**注意**：使用HTTPS时，浏览器会提示证书不受信任，这是正常的。选择"继续访问"即可。
+
+### 第五步：开始使用
+
+1. 在侧边栏输入你的姓名（可选）
+2. 选择项目文件夹
+3. 使用键盘快捷键浏览和分类图片
 
 ## 配置说明
 
@@ -167,31 +218,38 @@ python run_app.py --no-https
 
 数据库文件：`data/app.db`
 
-## 故障排除
+## 常见问题
 
-### 1. 无法启动应用
+### Q: 如何修改端口？
+A: 编辑 `config.json` 文件中的 `port` 字段。
 
-检查端口是否被占用：
+### Q: 如何在局域网中访问？
+A: 确保 `config.json` 中的 `host` 设置为 `0.0.0.0`，然后使用服务器的IP地址访问，例如 `https://192.168.1.100:8501`
+
+### Q: 边界框不显示？
+A: 确保图片同目录下有对应的 `.txt` 标注文件，并检查格式是否正确。
+
+### Q: 如何清空操作历史？
+A: 删除 `data/app.db` 文件，系统会自动重新创建。
+
+### Q: 无法启动应用？
+A: 检查端口是否被占用：
 ```bash
 netstat -ano | findstr :8501
 ```
 
-### 2. 图片无法显示
+### Q: SSL证书错误？
+A: 删除 `certs` 目录后重新启动，系统会自动生成新证书。
 
-- 检查图片格式是否支持（jpg, jpeg, png, bmp）
-- 检查图片路径是否正确
-- 查看控制台错误信息
+## 测试安装
 
-### 3. 边界框不显示
+运行测试脚本验证安装：
 
-确保图片同目录下有对应的`.txt`标注文件，格式为：
-```
-x1 y1 x2 y2 confidence
+```bash
+python test_basic.py
 ```
 
-### 4. SSL证书错误
-
-删除 `certs` 目录后重新启动，系统会自动生成新证书。
+应该看到 5/6 或 6/6 测试通过。
 
 ## 开发说明
 
@@ -238,6 +296,257 @@ ImageReviewer/
 - **安全**: pyOpenSSL, cryptography
 - **前端**: HTML5, CSS3, JavaScript (原生)
 
+## Docker/Podman 部署指南
+
+### 导出镜像
+
+```powershell
+podman save -o image_reviewer.tar image_reviewer:latest
+```
+
+### 准备工作
+
+* 已安装 **Podman Desktop**（WSL2 后端）
+* 离线镜像：`image_reviewer.tar`
+* 项目结构示例：
+
+```
+C:\projects\ImageReviewer\
+├─ certs\
+├─ data\
+└─ image_reviewer.tar
+```
+
+### 导入离线镜像
+
+```powershell
+podman load -i C:\projects\ImageReviewer\image_reviewer.tar
+```
+
+镜像名假设为 `image_reviewer:latest`。
+
+### 启动容器
+
+使用端口映射模式：
+
+```powershell
+podman run -d --name image_reviewer -p 8501:8501 \
+  -v /mnt/c/projects/ImageReviewer/certs:/app/certs \
+  -v /mnt/c/projects/ImageReviewer/data:/data \
+  -e TZ=Asia/Shanghai \
+  -e ROOT_DIRECTORY=/data \
+  --restart always \
+  image_reviewer:latest
+```
+
+或使用主机网络模式：
+
+```powershell
+podman run -d --name image_reviewer --network host \
+  -v /mnt/c/projects/ImageReviewer/certs:/app/certs \
+  -v /mnt/c/projects/ImageReviewer/data:/data \
+  -e TZ=Asia/Shanghai \
+  -e ROOT_DIRECTORY=/data \
+  --restart always \
+  image_reviewer:latest
+```
+
+说明：
+* `-d`：后台运行
+* `-p 8501:8501`：端口映射
+* `-v <本地>:<容器>`：挂载卷
+* `-e`：环境变量
+
+### 配置开机自启
+
+#### 创建 PowerShell 脚本 `start_image_reviewer.ps1`
+
+```powershell
+# === 配置变量 ===
+$containerName = 'image_reviewer'
+
+# 等待 180 秒，确保 Podman Desktop / WSL2 启动完成
+Start-Sleep -Seconds 180
+
+# 等待 Podman 就绪
+$timeout = 600
+$interval = 10
+$elapsed = 0
+while (-not (Get-Command podman -ErrorAction SilentlyContinue) -and $elapsed -lt $timeout) {
+    Start-Sleep -Seconds $interval
+    $elapsed += $interval
+}
+
+# 如果超时仍找不到 podman，则退出
+if (-not (Get-Command podman -ErrorAction SilentlyContinue)) { exit }
+
+# 检查容器是否存在
+$containerExists = podman ps -a --filter "name=$containerName" --format '{{.Names}}'
+
+if ($containerExists -eq $containerName) {
+    # 如果容器存在但未运行，则启动
+    $running = podman ps --filter "name=$containerName" --format '{{.Names}}'
+    if ($running -ne $containerName) { podman start $containerName }
+}
+```
+
+#### 创建任务计划
+
+1. 打开 **任务计划程序** → **创建任务**
+2. **触发器**：开机时 / 用户登录时
+3. **操作**：
+   * 程序/脚本：`powershell.exe`
+   * 参数：`-ExecutionPolicy Bypass -File "C:\path\to\start_image_reviewer.ps1"`
+4. 勾选"使用最高权限运行"
+
+完成后，每次开机自动启动容器。
+
+### 验证部署
+
+```powershell
+podman ps          # 查看容器状态
+podman logs -f image_reviewer  # 查看实时日志
+```
+
+* `Up` 表示容器正常运行
+
+### 开通防火墙
+
+```powershell
+netsh advfirewall firewall add rule name="ImageReviewer Port 8501" dir=in action=allow protocol=TCP localport=8501
+```
+
+### 注意事项
+
+* 确保端口 `8501` 未被占用
+* WSL2 启动慢，可调整 `Start-Sleep` 秒数
+* Windows 下卷挂载路径需正确
+
+## 项目技术总结
+
+### 核心架构
+
+**架构模式**：
+- MVC模式：清晰的代码组织
+- RESTful API：标准化的接口设计
+- 单例模式：数据库连接管理
+
+**文件结构**：
+
+```
+ImageReviewer/
+├── 核心模块 (8个)
+│   ├── app.py                 (Flask应用主文件)
+│   ├── config_handler.py      (配置处理)
+│   ├── database.py            (数据库操作)
+│   ├── image_handler.py       (图片处理)
+│   ├── user_handler.py        (用户管理)
+│   ├── generate_cert.py       (证书生成)
+│   ├── run_app.py            (启动脚本)
+│   └── config.json           (配置文件)
+│
+├── 前端文件 (7个)
+│   ├── templates/
+│   │   ├── index.html        (主审查页面)
+│   │   ├── history.html      (操作历史)
+│   │   └── review.html       (结果确认)
+│   ├── static/css/
+│   │   └── style.css         (样式文件)
+│   └── static/js/
+│       ├── main.js           (主页面逻辑)
+│       ├── history.js        (历史页面逻辑)
+│       └── review.js         (确认页面逻辑)
+│
+└── 文档与测试
+    ├── README.md
+    ├── requirements.txt
+    └── test_basic.py
+```
+
+**代码统计**： 
+- Python代码: ~2500行
+- JavaScript代码: ~800行
+- CSS代码: ~500行
+- HTML代码: ~400行
+- **总计**: ~4200行
+
+### API接口 (18个)
+
+**基础功能 (6个)**：
+- `GET /api/folders` - 获取文件夹列表
+- `GET /api/images` - 获取图片列表
+- `GET /api/image` - 获取图片数据
+- `GET /api/preload` - 预加载图片
+- `GET /api/state` - 获取全局状态
+- `POST /api/state` - 更新全局状态
+
+**用户管理 (2个)**：
+- `GET /api/user` - 获取用户信息
+- `POST /api/user/name` - 更新用户名称
+
+**图片分类 (1个)**：
+- `POST /api/classify` - 分类图片
+
+**撤回功能 (2个)**：
+- `GET /api/undo/available` - 检查撤回可用性
+- `POST /api/undo` - 执行撤回
+
+**操作历史 (3个)**：
+- `GET /api/operations` - 查询操作记录
+- `GET /api/operations/stats` - 获取统计信息
+- `GET /api/users` - 获取用户列表
+
+**结果确认 (2个)**：
+- `GET /api/review/images` - 获取分类结果列表
+- `GET /api/review/image` - 获取分类结果图片
+
+### 数据库设计
+
+**表结构 (3个表)**：
+
+1. **users** - 用户表
+   - id, ip, name, first_seen, last_active
+
+2. **operations** - 操作记录表
+   - id, user_ip, user_name, operation_type, image_name, source_folder, target_folder, timestamp
+
+3. **undo_history** - 撤回历史表
+   - id, user_ip, operation_id, image_name, from_folder, to_folder, txt_file_exists, timestamp
+
+**索引 (3个)**：
+- idx_operations_user_ip
+- idx_operations_timestamp
+- idx_undo_history_user_ip
+
+### 主要优势
+
+1. **性能优化**
+   - 图片预加载机制
+   - 快速的响应速度
+   - 优化的内存占用
+
+2. **用户体验**
+   - 完整的键盘快捷键
+   - 流畅的交互体验
+   - 现代化UI设计
+
+3. **数据管理**
+   - 结构化的数据库存储
+   - 完整的操作记录
+   - 统计分析功能
+
+4. **可维护性**
+   - 清晰的代码结构
+   - 模块化设计
+   - 详细的文档
+
+## 生产环境部署建议
+
+- 建议使用 Gunicorn + Nginx
+- 配置SSL证书（使用正式证书）
+- 设置合适的并发数
+- 配置日志轮转
+
 ## 许可证
 
 ©2024 产线图片二次确认系统 WxP/MOE4
@@ -251,4 +560,26 @@ ImageReviewer/
 - 操作历史记录
 - 撤回功能
 - HTTPS支持
+
+## 依赖管理
+
+* 在虚拟环境下运行下面命令，从本地安装依赖包
+
+```bash
+pip install -r requirements.txt --no-index --find-links=./packages
+```
+
+### 依赖打包方法
+
+* 生成依赖列表
+
+```bash
+pip freeze > requirements.txt
+```
+
+* 下载依赖包至本地
+
+```bash
+pip download -d ./packages -r requirements.txt
+```
 
