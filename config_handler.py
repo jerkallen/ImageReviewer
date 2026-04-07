@@ -163,23 +163,6 @@ class ConfigHandler:
             except Exception as e:
                 print(f"警告: 无法创建目录 {directory}: {str(e)}")
     
-    def is_docker(self) -> bool:
-        """检查是否在Docker环境中运行"""
-        try:
-            # 检查 /.dockerenv 文件
-            if os.path.exists('/.dockerenv'):
-                return True
-            
-            # 检查 /proc/self/cgroup 文件中是否包含 docker
-            cgroup_path = '/proc/self/cgroup'
-            if os.path.exists(cgroup_path):
-                with open(cgroup_path, 'r') as f:
-                    return any('docker' in line for line in f)
-            
-            return False
-        except Exception:
-            return False
-    
     def setup_logging(self) -> logging.Logger:
         """设置日志记录"""
         log_dir = self.get_logs_directory()
@@ -222,7 +205,6 @@ class ConfigHandler:
 - 服务器地址: {self.get_host()}:{self.get_port()}
 - 支持的图片格式: {', '.join(self.get_image_extensions())}
 - 默认文件夹: OK={self.get_default_folders()['ok']}, NOK={self.get_default_folders()['nok']}
-- Docker环境: {'是' if self.is_docker() else '否'}
         """
         return summary
 
