@@ -1,0 +1,32 @@
+目录确认: D:\code\projects\ImageReviewer\data
+目录确认: D:\code\projects\ImageReviewer\data\logs
+目录确认: D:\code\projects\ImageReviewer\data\images
+============================================================
+图片审查系统启动
+============================================================
+
+配置摘要:
+- 数据根目录: D:\code\projects\ImageReviewer\data
+- 日志目录: D:\code\projects\ImageReviewer\data\logs
+- 图片扫描目录: D:\code\projects\ImageReviewer\data\images
+- 服务器地址: 0.0.0.0:8501
+- 支持的图片格式: .jpg, .jpeg, .png, .bmp
+- 默认文件夹: OK=OK, NOK=NOK
+        
+============================================================
+
+注意：以HTTP模式启动（不安全）
+数据库初始化完成
+根目录: D:\code\projects\ImageReviewer\data
+扫描目录: D:\code\projects\ImageReviewer\data\images
+
+启动模式：HTTP（不安全）
+
+应用启动在 http://0.0.0.0:8501
+
+浏览器访问: http://localhost:8501
+
+按 Ctrl+C 停止服务器
+============================================================
+ * Serving Flask app 'app'
+ * Debug mode: off

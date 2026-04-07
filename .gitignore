@@ -42,3 +42,6 @@ test_images/
 *.tmp
 *.bak
 
+.playwright*.log
+.pytest_cache/
+.superpowers/

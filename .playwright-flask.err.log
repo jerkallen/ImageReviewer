@@ -1,0 +1,30 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8501
+ * Running on http://198.18.0.1:8501
+Press CTRL+C to quit
+127.0.0.1 - - [07/Apr/2026 14:10:21] code 400, message Bad request version ("±Ë\x9a\x03_'ZDd")
+127.0.0.1 - - [07/Apr/2026 14:10:21] code 400, message Bad request version ('\x84©¼Õ\x19\x06O\x01\x9d\xad¸\x8d\x13Á\x12=ÑWÑèé¹rg"U¡\x8a\x08Þ¼É¡\x92\x89\x05Å\x9c·\x92±ÑPß<q³ìû')
+127.0.0.1 - - [07/Apr/2026 14:10:21] "\x16\x03\x01\x07Ï\x01\x00\x07Ë\x03\x03\x94^êÈÇ\x091A¢/\x0e(\x0eÄé\x9e6qÈ¿\x94\x1c±\x9f\x8fqP¤ANQ\x9f \x00\x0f%Å}S\x81Â<Þ,\x16æ\x1b×m\x8bì\x1bº\x8e ±Ë\x9a\x03_'ZDd" 400 -
+127.0.0.1 - - [07/Apr/2026 14:10:21] "\x16\x03\x01\x07\x00\x01\x00\x06ü\x03\x03cN(}\x9b~y(¤É¤ßgÁ\x11Z\x18dã½,}4*g-\x12äRR¦Á Ì+f\x03\\ä]Ü~\x09¤P\x9bÀuðê\x86sÁ\x1fSkPÕ5\x02[P\x9d¹¸\x00 ªª\x13\x01\x13\x02\x13\x03À+À/À,À0Ì©Ì¨À\x13À\x14\x00\x9c\x00\x9d\x00/\x005\x01\x00\x06\x93zz\x00\x00\x00\x1b\x00\x03\x02\x00\x02DÍ\x00\x05\x00\x03\x02h2\x00#\x00\x00þ\x0d\x01\x1a\x00\x00\x01\x00\x01\x86\x00 \x13f1S¡\x8a»8«\x9a¼+0Óâ\x8bN\x91(öHÞ;X\x9eìsèá\x0búb\x00ð©­"ú\x05ø[(\x99FpÓ\x1b$\x04\x83Þ®\x11\x07\x8a~èD¶\x87Zµ1\x13Úe3\x05'¬1ACh»;\x12µ\x15¯ØµPä\x9a\x81ö×Þr5È \x98\x93\x0b\x84©¼Õ\x19\x06O\x01\x9d­¸\x8d\x13Á\x12=ÑWÑèé¹rg"U¡\x8a\x08Þ¼É¡\x92\x89\x05Å\x9c·\x92±ÑPß<q³ìû" 400 -
+127.0.0.1 - - [07/Apr/2026 14:10:21] code 400, message Bad request version ('\x02h2\x08http/1.1\x00')
+127.0.0.1 - - [07/Apr/2026 14:10:21] "\x16\x03\x01\x07\x00\x01\x00\x06ü\x03\x03üü!\x1a\x95\x98íëàÆðÉç´·hW\x94\x04¢åÿ\x12Ò¶\x09,3ð\x0dý· V¬Ñ°Êd7\x05gÛ\x97\x14ÖØöõqf\x8ccÇ\x17\x98\x9a\x82°\x87bº'µ5\x00 ZZ\x13\x01\x13\x02\x13\x03À+À/À,À0Ì©Ì¨À\x13À\x14\x00\x9c\x00\x9d\x00/\x005\x01\x00\x06\x93ºº\x00\x00þ\x0d\x01\x1a\x00\x00\x01\x00\x01\x14\x00 \x04ýÏ!F<\x0böÆ4\x04vó\x80Bé% K§z.i\x86\x7f|¯ÃQµå\x03\x00ðÿ\x14Ïf,\x8d\x88bJwl#O`é\x93\x10-\x1a¬Él\x01hW\x85¸½ÇÎ$y\x0bMòþçåU\x1c©Æô`Gô\x96§Õ2ncÛ(¯9\x1aæ\x91`\x03íÚÚ=%\x1b\x11«\x03P¯Ê\x9684)yü\x06sñä\x81\x90\x10à\x12Á·\x1eR;0\x98®\x97\x05T"wEæF(x%\x03]m¢¦ä;\x95¹)ÖÉ\x94(,\x8c\x88UÞºb\x96\x1f\x9f\x9f\x06\x8aUÿlÓK\x0d\x1e\x9a÷Xî\x1a¢¹Ä¨QûÂò\x95\x04BË}MÈ\x94Ï¯\x1a\x18Ì\x1fªF\x8coBÈÛ\x13¸\x8f\x94)3zëåH\x86gÉÏ\x82\x97D\x01¾nûh\x0b\x85±\x99\x0cp\x1cgëÚÂVÖ\x00\x01uF+\x90¼\x15\x8eÆé,+\x977ÀM\x18såÉ¨~\x13\x0e{Ü"@\x9e\x00+\x00\x07\x06ÚÚ\x03\x04\x03\x03\x00\x0d\x00\x12\x00\x10\x04\x03\x08\x04\x04\x01\x05\x03\x08\x05\x05\x01\x08\x06\x06\x01ÿ\x01\x00\x01\x00\x00#\x00\x00\x00\x17\x00\x00\x00\x12\x00\x00\x00\x1b\x00\x03\x02\x00\x02\x00\x10\x00\x0e\x00\x0c\x02h2\x08http/1.1\x00" 400 -
+127.0.0.1 - - [07/Apr/2026 14:10:21] code 400, message Bad request version ('à;\x1b\x8bq;§-÷]\x8czø5J1\x7f\x07kÂ\x88')
+127.0.0.1 - - [07/Apr/2026 14:10:21] "\x16\x03\x01\x06 \x01\x00\x06\x9c\x03\x03\x0c7\x96R,¥ü^m¦b\x05\x893P\x9fâåXåÉ#ï\x9a&Ô\x134I;\x0b$ à;\x1b\x8bq;§-÷]\x8czø5J1\x7f\x07kÂ\x88" 400 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/user HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/settings HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/folders HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/images?folder=HDEV5 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/image?folder=HDEV5&index=0&rotate=0&bbox=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "POST /api/state HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/state HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/images?folder=HDEV5 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:24] "GET /api/image?folder=HDEV5&index=0&rotate=0&bbox=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:25] "GET /api/image?folder=HDEV5&index=1&rotate=0&bbox=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:25] "POST /api/state HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:25] "GET /api/undo/available HTTP/1.1" 200 -
+127.0.0.1 - - [07/Apr/2026 14:10:25] "GET /api/image?folder=HDEV5&index=1&rotate=0&bbox=1 HTTP/1.1" 200 -

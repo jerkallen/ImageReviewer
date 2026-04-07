@@ -1,6 +1,10 @@
 // 主页面JavaScript逻辑
 
 // 全局状态
+const IMAGE_FIT_MODE_STORAGE_KEY = 'imageFitMode';
+const DEFAULT_IMAGE_FIT_MODE = 'fit-window';
+const IMAGE_FIT_MODES = new Set(['fit-window', 'prioritize-height']);
+
 const state = {
     currentFolder: null,
     currentIndex: 0,
@@ -8,6 +12,7 @@ const state = {
     imageList: [],
     rotate: false,
     showBbox: true,
+    imageFitMode: DEFAULT_IMAGE_FIT_MODE,
     preloadedImage: null,  // 预加载的图片缓存
     preloadedIndex: -1,    // 预加载的图片索引
     preloadedImageName: null,  // 预加载的图片文件名
@@ -26,6 +31,7 @@ const elements = {
     imageName: document.getElementById('image-name'),
     loading: document.getElementById('loading'),
     noImage: document.getElementById('no-image'),
+    imageArea: document.querySelector('.image-area'),
     totalCount: document.getElementById('total-count'),
     currentIndex: document.getElementById('current-index'),
     modifyTime: document.getElementById('modify-time'),
@@ -42,12 +48,14 @@ const elements = {
     btnLast: document.getElementById('btn-last'),
     btnUndo: document.getElementById('btn-undo'),
     undoCount: document.getElementById('undo-count'),
+    imageFitButtons: document.querySelectorAll('#image-fit-mode-controls .display-mode-btn'),
     notification: document.getElementById('notification')
 };
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
+    initializeImageFitMode();
     initializeApp();
     setupEventListeners();
     setupKeyboardShortcuts();
@@ -82,6 +90,7 @@ function setupEventListeners() {
     elements.folderSelect.addEventListener('change', onFolderChange);
     elements.rotateToggle.addEventListener('change', onRotateToggle);
     elements.bboxToggle.addEventListener('change', onBboxToggle);
+    elements.imageFitButtons.forEach(button => button.addEventListener('click', onImageFitModeChange));
     elements.btnFirst.addEventListener('click', () => navigate('first'));
     elements.btnPrev.addEventListener('click', () => navigate('prev'));
     elements.btnOk.addEventListener('click', () => classifyImage('ok'));
@@ -582,6 +591,32 @@ function onBboxToggle() {
 }
 
 // 加载全局状态
+function initializeImageFitMode() {
+    const savedMode = localStorage.getItem(IMAGE_FIT_MODE_STORAGE_KEY) || DEFAULT_IMAGE_FIT_MODE;
+    applyImageFitMode(savedMode);
+}
+
+function onImageFitModeChange(event) {
+    const mode = event.currentTarget.dataset.imageFitMode || DEFAULT_IMAGE_FIT_MODE;
+    applyImageFitMode(mode);
+    localStorage.setItem(IMAGE_FIT_MODE_STORAGE_KEY, mode);
+}
+
+function applyImageFitMode(mode) {
+    const normalizedMode = IMAGE_FIT_MODES.has(mode) ? mode : DEFAULT_IMAGE_FIT_MODE;
+    state.imageFitMode = normalizedMode;
+
+    if (elements.imageArea) {
+        elements.imageArea.dataset.imageFitMode = normalizedMode;
+    }
+
+    elements.imageFitButtons.forEach(button => {
+        const isActive = button.dataset.imageFitMode === normalizedMode;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
 async function loadGlobalState() {
     try {
         const response = await fetch('/api/state');
@@ -650,7 +685,8 @@ function createThemeToggle() {
     toggle.title = '切换主题';
     toggle.onclick = toggleTheme;
     
-    document.body.appendChild(toggle);
+    const themeHost = document.querySelector('.container') || document.body;
+    themeHost.appendChild(toggle);
     updateThemeToggleText();
 }
 

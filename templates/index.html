@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOE4视觉图片二次确认</title>
+    <title>WxP视觉图片二次确认</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
-        <!-- 头部 -->
         <header class="header">
-            <h1>MOE4视觉图片二次确认</h1>
+            <h1 class="page-title"><span class="page-title-brand">UAES</span>无锡厂视觉图片二次确认</h1>
         </header>
 
-        <!-- 主内容区 -->
         <div class="main-content">
-            <!-- 侧边栏 -->
             <aside class="sidebar">
-                <!-- 用户信息 -->
                 <div class="user-section">
                     <h3>用户信息</h3>
                     <div class="user-info">
@@ -26,7 +22,6 @@
                     </div>
                 </div>
 
-                <!-- 文件夹选择 -->
                 <div class="folder-section">
                     <h3>目标文件夹</h3>
                     <select id="folder-select" class="folder-select">
@@ -34,7 +29,6 @@
                     </select>
                 </div>
 
-                <!-- 图片信息 -->
                 <div class="info-section">
                     <h3>图片信息</h3>
                     <div class="info-item">
@@ -58,7 +52,6 @@
                     </div>
                 </div>
 
-                <!-- 显示选项 -->
                 <div class="options-section">
                     <h3>显示选项</h3>
                     <div class="option-item">
@@ -73,9 +66,15 @@
                             <span>显示边界框 (B)</span>
                         </label>
                     </div>
+                    <div id="image-fit-mode-controls" class="display-mode-bar" role="group" aria-label="主图显示模式">
+                        <span class="display-mode-label">显示模式</span>
+                        <div class="display-mode-toggle">
+                            <button id="image-fit-fit-window" type="button" class="display-mode-btn is-active" data-image-fit-mode="fit-window" aria-pressed="true">适应窗口</button>
+                            <button id="image-fit-prioritize-height" type="button" class="display-mode-btn" data-image-fit-mode="prioritize-height" aria-pressed="false">优先填高</button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 撤回操作 -->
                 <div class="undo-section">
                     <h3>撤回操作</h3>
                     <button id="btn-undo" class="btn btn-undo" title="撤回操作 (U 或 Ctrl+Z)" disabled>撤回 (U)</button>
@@ -84,7 +83,6 @@
                     </div>
                 </div>
 
-                <!-- 导航链接 -->
                 <div class="nav-section">
                     <a href="/history" class="nav-link">操作历史</a>
                     <a href="/review" class="nav-link">结果确认</a>
@@ -92,19 +90,16 @@
                 </div>
             </aside>
 
-            <!-- 图片显示区 -->
-            <main class="image-area">
-                <!-- 控制按钮 -->
+            <main class="image-area" data-image-fit-mode="fit-window">
                 <div class="controls">
                     <button id="btn-first" class="btn" title="首张 (Home)">|&lt;</button>
                     <button id="btn-prev" class="btn" title="上一张 (← 或 A)">&lt;</button>
-                    <button id="btn-ok" class="btn btn-ok" title="标记为OK (1 或 Enter)">OK</button>
-                    <button id="btn-nok" class="btn btn-nok" title="标记为NOK (2 或 Space)">NOK</button>
+                    <button id="btn-ok" class="btn btn-ok" title="标记为 OK (1 或 Enter)">OK</button>
+                    <button id="btn-nok" class="btn btn-nok" title="标记为 NOK (2 或 Space)">NOK</button>
                     <button id="btn-next" class="btn" title="下一张 (→ 或 D)">&gt;</button>
                     <button id="btn-last" class="btn" title="末张 (End)">&gt;|</button>
                 </div>
 
-                <!-- 图片显示容器 -->
                 <div class="image-container">
                     <div id="image-name" class="image-name"></div>
                     <div id="loading" class="loading">加载中...</div>
@@ -112,7 +107,6 @@
                     <div id="no-image" class="no-image">无图片</div>
                 </div>
 
-                <!-- 快捷键提示 -->
                 <div class="shortcuts">
                     <h4>快捷键：</h4>
                     <span>←/A:上一张</span>
@@ -126,16 +120,13 @@
             </main>
         </div>
 
-        <!-- 页脚 -->
         <footer class="footer">
-            <p>WxP/MOE4 产线图片二次确认系统 v2.1</p>
+            <p>UAES无锡厂AI视觉端到端解决方案 - 视觉图片二次确认 v2.5</p>
         </footer>
     </div>
 
-    <!-- 通知提示 -->
     <div id="notification" class="notification"></div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
-

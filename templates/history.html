@@ -34,6 +34,7 @@
             color: #FFFFFF;
             text-decoration: none;
             border-radius: 6px;
+            font-size: 1.02rem;
             transition: background 0.3s;
         }
 
@@ -239,6 +240,145 @@
 
         body.theme-light .no-data {
             color: #666666;
+        }
+
+        /* Theme overrides */
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font-family: 'Bahnschrift', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        .history-header h2,
+        th,
+        td {
+            color: var(--theme-text);
+        }
+
+        .back-link,
+        .filter-actions .btn {
+            background: var(--theme-accent);
+            color: #f4f7fa;
+        }
+
+        .back-link:hover,
+        .filter-actions .btn:hover {
+            background: var(--theme-accent-strong);
+        }
+
+        .filters,
+        .stats,
+        .table-container {
+            background: var(--theme-panel-strong);
+        }
+
+        .filter-group label,
+        .stat-label,
+        .no-data {
+            color: var(--theme-muted);
+        }
+
+        .filter-group input,
+        .filter-group select {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        .filter-group select option {
+            background: #202831;
+            color: var(--theme-text);
+        }
+
+        .stat-item {
+            background: rgba(104, 127, 146, 0.14);
+        }
+
+        .stat-value,
+        .op-type.ok {
+            color: var(--theme-ok);
+        }
+
+        thead {
+            background: rgba(104, 127, 146, 0.22);
+        }
+
+        th,
+        td {
+            border-bottom-color: var(--theme-border-soft);
+        }
+
+        tbody tr:hover {
+            background: rgba(104, 127, 146, 0.08);
+        }
+
+        .op-type.ok {
+            background: rgba(92, 159, 107, 0.18);
+        }
+
+        .op-type.nok {
+            background: rgba(200, 100, 72, 0.18);
+            color: var(--theme-nok);
+        }
+
+        .op-type.undo {
+            background: rgba(104, 127, 146, 0.18);
+            color: var(--theme-accent);
+        }
+
+        body.theme-light .history-header h2,
+        body.theme-light th,
+        body.theme-light td {
+            color: var(--theme-text);
+        }
+
+        body.theme-light .back-link,
+        body.theme-light .filter-actions .btn {
+            background: var(--theme-accent);
+            color: #f4f7fa;
+        }
+
+        body.theme-light .back-link:hover,
+        body.theme-light .filter-actions .btn:hover {
+            background: var(--theme-accent-strong);
+        }
+
+        body.theme-light .filters,
+        body.theme-light .stats,
+        body.theme-light .table-container {
+            background: var(--theme-panel);
+        }
+
+        body.theme-light .filter-group label,
+        body.theme-light .stat-label,
+        body.theme-light .no-data {
+            color: var(--theme-muted);
+        }
+
+        body.theme-light .filter-group input,
+        body.theme-light .filter-group select {
+            background: rgba(255, 255, 255, 0.94);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        body.theme-light .filter-group select option {
+            background: #eef2f5;
+            color: var(--theme-text);
+        }
+
+        body.theme-light .stat-item {
+            background: rgba(104, 127, 146, 0.1);
+        }
+
+        body.theme-light thead {
+            background: rgba(104, 127, 146, 0.14);
+        }
+
+        body.theme-light tbody tr:hover {
+            background: rgba(104, 127, 146, 0.08);
         }
     </style>
 </head>

@@ -34,6 +34,7 @@
             color: #FFFFFF;
             text-decoration: none;
             border-radius: 6px;
+            font-size: 1.02rem;
             transition: background 0.3s;
         }
 
@@ -195,7 +196,7 @@
             padding: 0.8rem 2rem;
             border: none;
             border-radius: 6px;
-            font-size: 1rem;
+            font-size: 1.08rem;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 500;
@@ -255,6 +256,139 @@
 
         .status-message.show {
             display: block;
+        }
+
+        /* Theme overrides */
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font-family: 'Bahnschrift', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        .settings-header h2,
+        .settings-section h3,
+        .setting-item label,
+        .switch-label {
+            color: var(--theme-text);
+        }
+
+        .back-link {
+            background: var(--theme-accent);
+            color: #f4f7fa;
+        }
+
+        .back-link:hover {
+            background: var(--theme-accent-strong);
+        }
+
+        .settings-section {
+            background: var(--theme-panel-strong);
+        }
+
+        .settings-section h3 {
+            border-bottom-color: var(--theme-border);
+        }
+
+        .setting-description {
+            color: var(--theme-muted);
+        }
+
+        .setting-item input[type="text"] {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        .setting-item input[type="text"]:focus {
+            border-color: var(--theme-accent);
+        }
+
+        .slider {
+            background-color: rgba(255, 255, 255, 0.18);
+        }
+
+        input:checked + .slider,
+        .btn-save {
+            background-color: var(--theme-ok);
+            background: var(--theme-ok);
+        }
+
+        .btn-save:hover {
+            background: var(--theme-ok-hover);
+        }
+
+        .btn-reset {
+            background: var(--theme-accent);
+            color: #f4f7fa;
+        }
+
+        .btn-reset:hover {
+            background: var(--theme-accent-strong);
+        }
+
+        .btn-test {
+            background: var(--theme-info);
+            color: #fffaf7;
+        }
+
+        .btn-test:hover {
+            background: #627989;
+        }
+
+        .btn-test:disabled {
+            background: rgba(114, 136, 151, 0.55);
+        }
+
+        .status-message.success {
+            background: rgba(92, 159, 107, 0.18);
+            border-color: var(--theme-ok);
+            color: var(--theme-ok);
+        }
+
+        .status-message.error {
+            background: rgba(200, 100, 72, 0.18);
+            border-color: var(--theme-nok);
+            color: var(--theme-nok);
+        }
+
+        body.theme-light .settings-header h2,
+        body.theme-light .settings-section h3,
+        body.theme-light .setting-item label,
+        body.theme-light .switch-label {
+            color: var(--theme-text);
+        }
+
+        body.theme-light .back-link {
+            background: var(--theme-accent);
+            color: #f4f7fa;
+        }
+
+        body.theme-light .back-link:hover {
+            background: var(--theme-accent-strong);
+        }
+
+        body.theme-light .settings-section {
+            background: var(--theme-panel);
+        }
+
+        body.theme-light .settings-section h3 {
+            border-bottom-color: var(--theme-border);
+        }
+
+        body.theme-light .setting-description {
+            color: var(--theme-muted);
+        }
+
+        body.theme-light .setting-item input[type="text"] {
+            background: rgba(255, 255, 255, 0.94);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        body.theme-light .setting-item input[type="text"]:focus {
+            border-color: var(--theme-accent);
         }
     </style>
 </head>

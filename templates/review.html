@@ -34,6 +34,7 @@
             color: #FFFFFF;
             text-decoration: none;
             border-radius: 6px;
+            font-size: 1.02rem;
             transition: background 0.3s;
         }
 
@@ -93,6 +94,7 @@
             border-radius: 6px;
             color: #FFFFFF;
             cursor: pointer;
+            font-size: 1.02rem;
             transition: all 0.3s;
         }
 
@@ -197,6 +199,7 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            font-size: 1.02rem;
             transition: background 0.3s;
         }
 
@@ -318,6 +321,127 @@
 
         body.theme-light .loading-message {
             color: #333333;
+        }
+
+        /* Theme overrides */
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font-family: 'Bahnschrift', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        .review-header h2,
+        .thumbnail-name,
+        .pagination span,
+        .modal-info {
+            color: var(--theme-text);
+        }
+
+        .back-link,
+        .pagination button {
+            background: var(--theme-accent);
+            color: #f4f7fa;
+        }
+
+        .back-link:hover,
+        .pagination button:hover:not(:disabled) {
+            background: var(--theme-accent-strong);
+        }
+
+        .controls-bar,
+        .thumbnail-item {
+            background: var(--theme-panel-strong);
+        }
+
+        .controls-bar select {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        .tab {
+            background: rgba(104, 127, 146, 0.18);
+            color: var(--theme-text);
+        }
+
+        .tab.active {
+            background: var(--theme-ok);
+        }
+
+        .tab.nok.active {
+            background: var(--theme-nok);
+        }
+
+        .info-bar,
+        .no-images,
+        .loading-message {
+            color: var(--theme-muted);
+        }
+
+        .thumbnail-item:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .thumbnail-name {
+            background: rgba(19, 25, 31, 0.78);
+        }
+
+        .modal-close:hover {
+            color: var(--theme-nok);
+        }
+
+        body.theme-light .review-header h2,
+        body.theme-light .thumbnail-name,
+        body.theme-light .pagination span,
+        body.theme-light .modal-info {
+            color: var(--theme-text);
+        }
+
+        body.theme-light .back-link,
+        body.theme-light .pagination button {
+            background: var(--theme-accent);
+            color: #f4f7fa;
+        }
+
+        body.theme-light .back-link:hover,
+        body.theme-light .pagination button:hover:not(:disabled) {
+            background: var(--theme-accent-strong);
+        }
+
+        body.theme-light .controls-bar,
+        body.theme-light .thumbnail-item {
+            background: var(--theme-panel);
+        }
+
+        body.theme-light .controls-bar select {
+            background: rgba(255, 255, 255, 0.94);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        body.theme-light .tab {
+            background: rgba(104, 127, 146, 0.12);
+            color: var(--theme-text);
+        }
+
+        body.theme-light .info-bar,
+        body.theme-light .no-images,
+        body.theme-light .loading-message {
+            color: var(--theme-muted);
+        }
+
+        body.theme-light .thumbnail-name {
+            background: rgba(245, 248, 250, 0.95);
+        }
+
+        body.theme-light .modal-close {
+            color: var(--theme-text);
+        }
+
+        body.theme-light .modal-close:hover {
+            color: var(--theme-nok);
         }
     </style>
 </head>
