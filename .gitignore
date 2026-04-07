@@ -46,3 +46,4 @@ test_images/
 .pytest_cache/
 .superpowers/
 tests/
+config.json
