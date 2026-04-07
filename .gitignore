@@ -45,3 +45,4 @@ test_images/
 .playwright*.log
 .pytest_cache/
 .superpowers/
+tests/
